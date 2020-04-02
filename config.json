@@ -1,0 +1,443 @@
+{
+  "name": "Repeating Survey Portal",
+
+  "namespace":"Stanford\\RepeatingSurveyPortal",
+
+  "description": "Provides a survey portal for repeat surveys with many options",
+
+  "versions": [
+    { "0.1": "Initial" }
+  ],
+
+  "authors": [
+    {
+      "name": "Andrew Martin",
+      "email": "andy123@stanford.edu",
+      "institution": "Stanford University"
+    },
+    {
+      "name": "Jae Lee",
+      "email": "jael@stanford.edu",
+      "institution": "Stanford University"
+    }
+  ],
+
+  "permissions": [
+    "redcap_save_record",
+    "redcap_survey_complete",
+    "redcap_module_system_enable",
+    "redcap_module_link_check_display",
+    "redcap_module_save_configuration",
+    "redcap_data_entry_form_top"
+  ],
+
+  "crons": [
+    {
+      "cron_name": "em_survey_portal_invitation",
+      "cron_description": "Cron to send survey invitation",
+      "method": "inviteCron",
+      "cron_frequency": "3600",
+      "cron_max_run_time": "1200"
+    },
+    {
+      "cron_name": "em_survey_portal_reminder",
+      "cron_description": "Cron to send survey reminder",
+      "method": "reminderCron",
+      "cron_frequency": "3600",
+      "cron_max_run_time": "1200"
+    }
+  ],
+
+  "enable-every-page-hooks-on-system-pages": true,
+
+  "links": {
+    "control-center": [
+
+    ],
+    "project": [
+      {
+        "name": "RSP Admin: Test Cron Links",
+        "icon": "gear",
+        "url": "src/DisplayCronLinks.php"
+      }
+    ]
+  },
+
+  "no-auth-pages": [
+    "src/landing",
+    "src/InviteCron",
+    "src/ReminderCron",
+    "src/incoming"
+  ],
+
+  "system-settings": [
+    {
+      "key": "enable-system-debug-logging",
+      "name": "<b>Enable Debug Logging</b><br>If you have the Stanford emLogger external module installed and configured, you can enable additional debug-level logging through this checkbox</b>",
+      "required": false,
+      "type": "checkbox"
+    }
+  ],
+
+  "project-settings": [
+    {
+      "key": "enable-project-debug-logging",
+      "name": "<b>Enable Debug Logging</b>",
+      "required": false,
+      "type": "checkbox"
+    },
+
+    {
+      "key": "participant-config-id-field",
+      "name": "<b>Participant Config ID field</b><br>Field to identify which config applies to the Participant<br><div class='alert alert-dark'>If you are using the default form (Rsp Participant Info) that was automatically uploaded by this EM, the default field is 'rsp_prt_config_id'.</div>",
+      "required": false,
+      "type": "field-list",
+      "source": "js/PortalConfig.js",
+      "functionName": "PortalConfig.config",
+      "default": "rsp_prt_config_id"
+    },
+    {
+      "key": "survey-portals",
+      "name": "Survey Portal Configurations",
+      "required": false,
+      "type": "sub_settings",
+      "repeatable": true,
+      "sub_settings": [
+        {
+          "key": "config-description",
+          "name": "<b>Description</b><br>Describe this survey portal and provide any links to documentation that may be useful in supporting it in the future",
+          "required": false,
+          "type": "textarea"
+        },
+        {
+          "key": "minimum-needed-desc",
+          "name": "<div class='alert alert-success'><h3 class='text-center'>REQUIRED SETTINGS</h3><br>There are a lot of functionality that can be turned on for your portal. For the pared down minimum setting, make sure all the fields with the green box have been set.</div>",
+          "required": false,
+          "type": "descriptive"
+        },
+        {
+          "key": "config-id",
+          "name": "<div class='alert alert-success'><b>Unique Config ID</b><br>ID to identify this configuration</div><br>Give this configuration a name to identify it. For example, you might name it 'parent' for the parent portal to distinguish it from the 'child' portal.<br><br>You will need to select this name when assigning a portal to  a participant.",
+          "required": false,
+          "type": "text"
+        },
+        {
+          "key": "enable-portal",
+          "name": "<div class='alert alert-success'><b>Enable Portal</b><br>Must be checked for portal to function</div>",
+          "required": false,
+          "type": "checkbox"
+        },
+        {
+          "key": "main-config-event-name",
+          "name": "<div class='alert alert-success'><b>Main Config Event Name</b><br>Name of event where 'RSP Participant Info' form is enabled.</div>",
+          "required": false,
+          "type": "event-list"
+        },
+        {
+          "key": "survey-event-name",
+          "name": "<div class='alert alert-success'><b>Survey Event Name</b><br>Name of event where survey instruments are enabled.  This event must be REPEATING.</div><br><br>This survey instrument will be the survey that will be repeatedly served up in the portal.",
+          "required": false,
+          "type": "event-list"
+        },
+        {
+          "key": "survey-instrument",
+          "name": "<div class='alert alert-success'><b>Repeating Survey Instrument</b><br>The survey instrument that is to be taken repeatedly (daily, weekly, etc) in the portal.</div><br>This is the initial survey. Other surveys can be added by autocontinue or survey queue",
+          "required": false,
+          "type": "form-list"
+        },
+        {
+          "key": "valid-day-number",
+          "name": "<div class='alert alert-success'><b>Valid Days for Responses</b><br>These will be offset from the start date specified in the RSP Participant Info  form.</div><br> For example: <br> 1-20 : Take survey entries for the next 20 days from start date.  <br> 7,14,21,28,35 : Take surveys every seventh day. <br> 1-5,8-12,15-19 : If started on a Monday, take surveys on weekdays only. ",
+          "required": false,
+          "type": "text"
+        },
+        {
+          "key": "customization-desc",
+          "name": "<div class='alert alert-warning'><h3 class='text-center'>OPTIONAL ADDITIONAL CUSTOMIZATION SETTINGS</h3><br>These are the optional functionality that can be turned on or customized for your portal.</div>",
+          "required": false,
+          "type": "descriptive"
+        },
+        {
+          "key": "survey-complete-redirect",
+          "name": "<div class='alert alert-warning'><b>Redirect Back To Portal</b><br>Specify the repeated survey or the last survey if in a series (autocontinue / survey queue)</div><br>After the survey is taken, the participant can be redirected back to their portal (so they can take additional surveys).<br>If left blank, the survey will display the normal end of survey message set in Survey Settings.",
+          "required": false,
+          "type": "form-list"
+        },
+        {
+          "key": "send-portal-invite",
+          "name": "<div class='alert alert-warning'><b>Send Portal Invite</b><br>Send email invitation with portal url.</div>",
+          "required": false,
+          "type": "checkbox"
+        },
+        {
+          "key": "portal-invite-subject",
+          "name": "<div class='alert alert-warning'><b>Portal Notification Email Subject</b><br>When a participant is added to the project, they will receive an email to notify them of their personal portal url.</div><br><br>You can edit the suggested default.",
+          "required": false,
+          "type": "text"
+        },
+        {
+          "key": "portal-invite-from",
+          "name": "<div class='alert alert-warning'><b>Portal Notification From Email</b><br>When a participant is added to the project, they will receive an email to notify them of their personal portal url.</div><br><br>You can edit the suggested default.",
+          "required": false,
+          "type": "text"
+        },
+        {
+          "key": "portal-invite-email",
+          "name": "<div class='alert alert-warning'><b>Portal Notification Email Body</b><br>When a participant is added to the project, they will receive an email to notify them of their personal portal url.</div><br>You can use piping to customize this message and use the special tag [portal-url] for the link.<br><br>You can edit the suggested default.",
+          "required": false,
+          "type": "textarea"
+        },
+        {
+          "key": "portal-url-label",
+          "name": "<div class='alert alert-warning'><b>Label for Portal URL link</b><br>Display a clickable hyperlink rather than the full url.</div><br>For example, enter 'Personal Portal' to have the survey displayed as a hyperlink on 'Personal Portal'<br><br>If left blank, the full url of the personal portal will be displayed in the email (i.e. https://redpca.stanford.edu/... ",
+          "required": false,
+          "type": "text"
+        },
+        {
+          "key": "valid-day-lag",
+          "name": "<div class='alert alert-warning'><b>Valid Day Lag</b><br>Number of days in the past someone can still enter a response.</div><br> For example: <br> 0 : Only allow entry of current day's survey. <br>1 : Allow entry of yesterday's survey. <br>3 : Allow entry for the last 3 days' surveys. <br> ==LEAVE BLANK== : Allow entry for any previous survey.",
+          "required": false,
+          "type": "text"
+        },
+        {
+          "key": "show-calendar",
+          "name": "<div class='alert alert-warning'><b>Show Calendar</b><br>Show the date-picker calendar to allow participants to select dates for responses.</div><br>This is required if you want to allow people to enter data for days in the past",
+          "required": false,
+          "type": "checkbox"
+        },
+        {
+          "key": "show-missing-day-buttons",
+          "name": "<div class='alert alert-warning'><b>Show Missing Day Buttons</b></div><br>Show easy links to start response for any valid, incomplete survey dates",
+          "required": false,
+          "type": "checkbox"
+        },
+        {
+          "key": "earliest-time-allowed",
+          "name": "<div class='alert alert-warning'><b>Earliest Time Allowed</b><br>Earliest allowed hour of the day (0-24) to collect surveys (e.g. 22 for 8PM)</div><br>Do not allow responses for 'today' before this time (leave blank for any time)",
+          "required": false,
+          "type": "text"
+        },
+        {
+          "key": "landing-page-header",
+          "name": "<div class='alert alert-warning'><b>Custom Header for Personal Portal Page</b></div><br>Enter text to display to user on their landing page",
+          "required": false,
+          "type": "rich-text"
+        },
+        {
+          "key": "invitation-desc",
+          "name": "<div class='alert alert-info'><h3 class='text-center'>OPTIONAL INVITATION SETTINGS</h3><br>Rather than the participants having to go to their personal portal to take their survey, they can be sent an email with the link for the current day's survey. If you would like to turn this feature on, make sure the fields in the  blue box have been set.</div>",
+          "required": false,
+          "type": "descriptive"
+        },
+        {
+          "key": "enable-invitations",
+          "name": "<div class='alert alert-info'><b>Enable Email/Text Invitations</b></div><br>Enable the sending of survey invitations on valid invitation days.  The invitation contains the config name and the day number encoded in the url.<br><br>Email invitations will be sent if the participant has not disabled emails and has a valid email in their email field",
+          "required": false,
+          "type": "checkbox"
+        },
+        {
+          "key": "invitation-days",
+          "name": "<div class='alert alert-info'><b>Invitation Days</b><br>Days on which to send invitations.<br>These will be offset from the start date specified in the RSP Participant Info form. <br><b>These days should be a subset of Valid Days for Responses set above.</b></div><br>For example: <br> 1-20 : Send invites for the next 20 days from start date.  <br> 7,14,21,28,35 : Send invites every seventh day. <br> 1-5,8-12,15-19 : If started on a Monday, send invites on weekdays only. ",
+          "required": false,
+          "type": "text"
+        },
+        {
+          "key": "invitation-time",
+          "name": "<div class='alert alert-info'><b>Invitation Time</b><br>Hour of the day (0-24) to send invitation (e.g. 18 for 6PM)</div>",
+          "required": false,
+          "type": "number"
+        },
+       {
+          "key": "invitation-email-subject",
+          "name": "<div class='alert alert-info'><b>Invitation Email Subject</b></div>",
+          "required": false,
+          "type": "text"
+        },
+        {
+          "key": "invitation-email-from",
+          "name": "<div class='alert alert-info'><b>Invitation Email From</b></div><br>Enter an email address  to use for from field.",
+          "required": false,
+          "type": "text"
+        },
+        {
+          "key": "invitation-email-text",
+          "name": "<div class='alert alert-info'><b>Invitation Email Text</b></div><br>You can use piping to customize this message and use the special tag [invitation-url] for the link.  If not supplied, the link will automatically be added to the end of the message",
+          "required": false,
+          "type": "textarea"
+        },
+        {
+          "key": "invitation-url-label",
+          "name": "<div class='alert alert-info'><b>Label for Survey URL link</b><br>Display a clickable hyperlink rather than the full url of the survey.</div><br>For example, enter 'Daily Survey' to have the survey displayed as a hyperlink on 'Daily Survey'<br><br>If left blank, the full url of the day's survey will be displayed in the email (i.e. https://redpca.stanford.edu/survey/... ",
+          "required": false,
+          "type": "text"
+        },
+        {
+          "key": "sms-twilio-desc",
+          "name": "<div class='alert alert-danger'><h3 class='text-center'>SMS Settings</h3><br>The use of SMS invitations REQUIRES that a separate EM (Twilio Utility) be installed and enabled globally.<br>If you are using Twilio to send texts, you can set any of the fields in the red box to send texts along with or instead of emails.</div>",
+          "required": false,
+          "type": "descriptive"
+        },
+        {
+          "key": "invitation-sms-text",
+          "name": "<div class='alert alert-info'><b>Invitation SMS Text</b></div><div class='alert alert-danger'>Send by SMS<br>Text invitations will be sent if the participant has not disabled text and has a valid phone number in their phone field</div>The link will automatically be added to the end of the message.  Messages over 160 characters may result in multiple text segments.",
+          "required": false,
+          "type": "textarea"
+        },
+        {
+          "key": "survey-reminders-desc",
+          "name": "<div class='alert alert-primary'><h3 class='text-center'>OPTIONAL SURVEY REMINDER SETTINGS</h3><br>In some studies, rather than sending an invitation each day, subjects learn to submit every day on their own (for example, after dinner using the shortcut on their mobile device).  In these cases, one can use survey reminders to ONLY notify them if they haven't yet submitted a survey for the current day later on in the day.<br>Survey reminders can also be used with survey invitations as a 'reminder' email similar to the REDCap ASI Reminder function.</div>",
+          "required": false,
+          "type": "descriptive"
+        },
+        {
+          "key": "enable-reminders",
+          "name": "<div class='alert alert-primary'><b>Enable Reminders</b><br>Send survey reminders by phone or email if survey has not been completed for a valid day</div>",
+          "required": false,
+          "type": "checkbox"
+        },
+        {
+          "key": "reminder-time",
+          "name": "<div class='alert alert-primary'><b>Reminder Time</b><br>Hour of the day (0-24) to send reminder (e.g. 22 for 8PM) if the response has not yet been completed for a valid day.</div>",
+          "required": false,
+          "type": "number"
+        },
+        {
+          "key": "reminder-lag",
+          "name": "<div class='alert alert-primary'><b>Reminder Lag</b><br>Send reminder if participant has not responded by these many days.</div>",
+          "required": false,
+          "type": "number"
+        },
+        {
+          "key": "reminder-days",
+          "name": "<div class='alert alert-primary'><b>Reminder Days</b><br>Days on which to send reminders.<br>These will be offset from the start date specified in the RSP Participant Info form. <br><b>These days should be a subset of Valid Days for Responses set above.</b></div><br>For example: <br> 1-20 : Send reminders for the next 20 days from start date.  <br> 7,14,21,28,35 : Send reminders every seventh day. <br> 1-5,8-12,15-19 : If started on a Monday, send reminders on weekdays only. ",
+          "required": false,
+          "type": "text"
+        },
+        {
+          "key": "reminder-email-subject",
+          "name": "<div class='alert alert-primary'><b>Reminder Email Subject</b></div>",
+          "required": false,
+          "type": "text"
+        },
+        {
+          "key": "reminder-email-from",
+          "name": "<div class='alert alert-primary'><b>Reminder Email From</b><br>Enter an email address  to use for from field</div>",
+          "required": false,
+          "type": "text"
+        },
+        {
+          "key": "reminder-email-text",
+          "name": "<div class='alert alert-primary'><b>Reminder Email Text</b><br>You can use piping to customize this message and use the special tag [invitation-url] for the link.  If not supplied, the link will automatically be added to the end of the message</div>",
+          "required": false,
+          "type": "textarea"
+        },
+        {
+          "key": "reminder-url-label",
+          "name": "<div class='alert alert-primary'><b>Label for Survey URL link</b><br>Display a clickable hyperlink rather than the full url of the survey.</div><br>For example, enter 'Daily Survey' to have the survey displayed as a hyperlink on 'Daily Survey'<br><br>If left blank, the full url of the day's survey will be displayed in the email (i.e. https://redcap.stanford.edu/survey/... ",
+          "required": false,
+          "type": "text"
+        },
+        {
+          "key": "reminder-sms-text",
+          "name": "<div class='alert alert-primary'><b>Reminder SMS Text</b></div><div class='alert alert-danger'>Send by SMS<br>Text reminders will be sent if the participant has not disabled text and has a valid phone number in their phone field</div>",
+          "required": false,
+          "type": "textarea"
+        },
+        {
+          "key": "participant-settings-desc",
+          "name": "<div class='alert alert-secondary'><h3 class='text-center'>PARTICIPANT SETTINGS</h3><br>If you are using the automatically uploaded file (RSP Participant Info), default settings will be set when you <b>save</b> the config.</div>",
+          "required": false,
+          "type": "descriptive"
+        },
+
+        {
+          "key": "participant-disabled",
+          "name": "<b>Participant Disabled Field</b><br>If specified and the value is '1', the participant will be disabled and will not be able to create any new survey entries.",
+          "required": false,
+          "type": "field-list"
+        },
+        {
+          "key": "main-config-form-name",
+          "name": "<b>Main Config Form Name</b><br>Name of form where config fields are stored",
+          "required": false,
+          "type": "form-list"
+        },
+        {
+          "key": "start-date-field",
+          "name": "<b>Start Date Field</b><br>This is day 0 when day numbers are enabled",
+          "required": false,
+          "type": "field-list"
+        },
+
+        {
+          "key": "personal-hash-field",
+          "name": "<b>Personal Hash Field</b><br>This hash encodes the record_id AND the specific config for the survey portal",
+          "required": false,
+          "type": "field-list"
+        },
+        {
+          "key": "personal-url-field",
+          "name": "<b>Personal URL Field</b><br>This url is unique to this portal config and this user",
+          "required": false,
+          "type": "field-list"
+        },
+        {
+          "key": "email-field",
+          "name": "<b>Email Field</b><BR>Field where email is recorded for this participant (to be used for survey invtes/reminders ",
+          "required": false,
+          "type": "field-list"
+        },
+        {
+          "key": "disable-participant-email-field",
+          "name": "<b>Participant Level: Disable Email Invites and Reminders Field</b><br>If set to 1 (calc or text field) then emails will be disabled for this participant.",
+          "required": false,
+          "type": "field-list"
+        },
+        {
+          "key": "phone-field",
+          "name": "<b>Phone Field</b><br>Field where phone is recorded for this participant (to be used for survey invites/reminders ",
+          "required": false,
+          "type": "field-list"
+        },
+        {
+          "key": "disable-participant-sms-field",
+          "name": "<b>Participant Level:  Disable SMS Invites and Reminders Field</b><br>If set to 1 (calc or text field) then SMS will be disabled for this participant.",
+          "required": false,
+          "type": "field-list"
+        },
+        {
+          "key": "survey-desc",
+          "name": "<div class='alert alert-secondary'><h3 class='text-center'>Repeating Survey Configuration</h3><br>If you are using the automatically uploaded survey metadata file (RSP Survey Metadata), default settings will be set when you <b>save</b> the config.</div>",
+          "required": false,
+          "type": "descriptive"
+        },
+
+        {
+          "key": "survey-config-field",
+          "name": "<b>Survey Config ID Field</b><br>This TEXT field stores which config was used in cases where you have multiple repeating configurations in a single project",
+          "required": false,
+          "type": "field-list"
+        },
+        {
+          "key": "survey-day-number-field",
+          "name": "<b>Survey Day Number Field</b><br>This TEXT field is the number of days from the Start Date Field defined above for this survey instance",
+          "required": false,
+          "type": "field-list"
+        },
+        {
+          "key": "survey-date-field",
+          "name": "<b>Survey Date Field</b><br>This TEXT field is the date that corresponds to the day number selected in the calendar landing page",
+          "required": false,
+          "type": "field-list"
+        },
+        {
+          "key": "survey-launch-ts-field",
+          "name": "<b>Survey Launch Timestamp</b><br>This TEXT field captures the actual timestamp of survey launch",
+          "required": false,
+          "type": "field-list"
+        }
+
+      ]
+    }
+  ]
+}

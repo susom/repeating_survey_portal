@@ -1,0 +1,14 @@
+{
+  "name": "Stanford/SurveyPortal",
+  "license": "proprietary",
+  "type": "project",
+  "description": "Stanford - Survey Portal Module - REDCap module",
+  "require": {
+  },
+  "require-dev": {
+  },
+  "autoload": {
+  },
+  "config": {
+  }
+}
