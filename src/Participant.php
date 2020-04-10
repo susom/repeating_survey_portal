@@ -482,6 +482,7 @@ class Participant {
             //'fields'              => $get_fields,
             'records'             => $this->participantID, //$this->portalConfig->participantID,
             'events'              => $this->portalConfig->surveyEventID,
+            # how this might impact performance. specially for large project like COVID-19. Maybe filter using php instead ?
             'filterLogic'         => $filter
         );
 

@@ -86,6 +86,7 @@ class RepeatingSurveyPortal extends \ExternalModules\AbstractExternalModule
                 $option_str .= '<option value="'.$option.'">'.$option.'</option>';
             }
 
+            # maybe load below js code in different file
             ?>
             <script type="text/javascript">
                 $(document).ready(function () {

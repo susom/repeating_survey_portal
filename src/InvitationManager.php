@@ -104,6 +104,7 @@ class InvitationManager {
                     continue;
                 }
 
+                # below routine is similar to the one in landing.php maybe merging the two could be an option.
                 //check that the portal is not disabled
                 if ( $participant->getParticipantPortalDisabled()) {
                     $module->emDebug("Participant portal disabled for ". $participant->getParticipantID());
@@ -263,6 +264,7 @@ class InvitationManager {
                 $this->portalConfig->personalHashField
             ),
             'events' => $this->portalConfig->mainConfigEventName,
+            # again filter data via php for large projects.
             'filterLogic'  => $filter
         );
 

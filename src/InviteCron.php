@@ -7,7 +7,7 @@ use REDCap;
 /** @var \Stanford\RepeatingSurveyPortal\RepeatingSurveyPortal $module */
 
 require_once 'InvitationManager.php';
-
+# sanitize this variable.
 $sub = isset($_GET['s']) ? $_GET['s'] : "";
 
 $module->emLog("------- Starting Repeating Survey Portal:  Invitation Cron for  $project_id with config sub-setting $sub-------");

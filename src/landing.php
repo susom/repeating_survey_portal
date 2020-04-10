@@ -18,7 +18,7 @@ $module->emDebug("===== Firing up the landing page ====");
 
 $config_ids = $module->getProjectSetting('config-id');
 
-
+# can you use filter_var to filter inputs below
 $p_hash = isset($_REQUEST['h']) ? $_REQUEST['h'] : "";
 $p_config = isset($_REQUEST['c']) ? $_REQUEST['c'] : "";
 $p_daynumber = isset($_REQUEST['d']) ? $_REQUEST['d'] : "";
@@ -26,6 +26,7 @@ $error_msg = null;
 
 
 //todo bail if no hash , no config
+# why do not move this try catch block inside $module since its only initiating objects and doing some vlaidation.
 try {
     $portal = new Portal($p_config, $p_hash);
     $participant = $portal->getParticipant(); //$portal->getParticipant();
@@ -53,6 +54,7 @@ try {
     $module->emDebug("Setting COOKIE KEY to ".$cookie_key);
     setcookie($cookie_key, $p_config, time()+(12*3600), "/");
 
+    # is there is use case the code might trigger this catch ? why not move it down to include all code
 } catch (\Exception $e) {
     $error_msg[] = $e->getMessage();
     $error_msg[] = "If you continue to experience difficulties, please contact your admin. ";
@@ -151,7 +153,7 @@ if(isset($_POST['cal_submit'])) {
             $survey_date = $today;
             $module->emDebug("Day number for " . $today->format('Y-m-d') . " is " . $day_number);
 
-
+            # what use case that will trigger this to be true ?
             if (!isset($survey_date)) {
                 $error_msg[] = "Survey date could not be derived from the day number.";
             }
@@ -160,6 +162,8 @@ if(isset($_POST['cal_submit'])) {
 }
 
 //if (isset($survey_date)) {  //blanks are counting as set??
+
+# maybe move this block to $participant->validateSurveyDate ?
 if (!empty($survey_date)) {
     //$module->emDebug(get_class($participant));
 
@@ -214,7 +218,7 @@ if (($error_msg == null) &&  (isset($day_number)) && (isset($survey_date))) {
 
 }
 
-
+# maybe move all code above inside $module and define attribute $error_msg and access it in html below.
 
 /**
  * // METHOD:   x()

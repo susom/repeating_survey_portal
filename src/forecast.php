@@ -74,9 +74,10 @@ if ($end != '') {
 
 
 }
-
+# maybe move below procedural functions to util class. this way you can cache some of the content.
 function getValidDayStatus($sub, $participant_id, $start_date,  $surveys, $valid_day_array) {
     global $module;
+    # this could be a good example of cached content.
     $config_ids = $module->getProjectSetting('config-id');
 
 

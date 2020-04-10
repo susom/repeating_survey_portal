@@ -36,6 +36,7 @@ class Portal
     private $portalConfig; // EM configuration settings for this participant (subsetting)
 
     public function __construct($config_id, $hash) {
+        # object not being used.
         global $module;
 
         $this->portalConfig = new PortalConfig($config_id);
@@ -46,7 +47,7 @@ class Portal
         //$module->emDebug($valid_day_array, $this->validDayNumber, $config['valid-day-number']['value'][$sub],"VALID DAY"); exit;
         //setup the participant
         //TODO: if multiple response per day is allowed, then use different class, ParticipantMultipleResponse
-        //MultipleResponse not yet implmented. Until then, just use the single Participant
+        //MultipleResponse not yet implemented. Until then, just use the single Participant
         $this->participant = new Participant($this->portalConfig, $hash);
         /**
         if ($this->portalConfig->maxResponsePerDay != 1) {
@@ -61,6 +62,7 @@ class Portal
 
     }
 
+    # no need for this function.
     public function setPortalConfigs() {
         global $module;
 

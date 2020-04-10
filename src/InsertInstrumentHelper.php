@@ -315,6 +315,7 @@ class InsertInstrumentHelper
         return false;
     }
 
+    # Try to move this parameter to RepeatingSurveyPortal.php this way all classes can access the same variable and you do not have to worry about missing an instance.
     // Return the errors
     public function getErrors() {
         return $this->errors;
