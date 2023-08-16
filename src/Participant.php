@@ -28,7 +28,7 @@ class Participant {
     public $event_name;
     public $valid_day_array;
     public $config_id;      // subsetting config ID
-    public $max_instance;   //last instance number
+    public $max_instance;   //last instance number; not used?
 
     private $participantID;   //PK of this participant
     private $participant_portal_disabled; //is this portal enabled for this participant
@@ -40,7 +40,8 @@ class Participant {
         global $module;
         $this->portalConfig = $portalConfig;
 
-        $this->event_name = REDCap::getEventNames(true, false, $this->surveyEventName);
+        //$this->event_name = REDCap::getEventNames(true, false, $this->surveyEventName); //is this even used?
+        $this->event_name = REDCap::getEventNames(true, false, $this->portalConfig->surveyEventName);
 
 
         //setup the participant surveys
@@ -58,7 +59,7 @@ class Participant {
         //$module->emDebug("PORTAL DISABLED? :  ". $this->participant_portal_disabled, $hash); exit;
 
 
-        //get all Surveys for this particpant and determine status
+        //get all Surveys for this participant and determine status
         $this->survey_status = $this->getAllSurveyStatus(
             $this->participantID,
             min($this->portalConfig->validDayArray),
@@ -93,7 +94,7 @@ class Participant {
 
 
     /**
-     * Called by construcdtor to create survey_status
+     * Called by constructor to create survey_status
      * Construct a status array using startdate and final date
      * todo: double check that we should do it this way to collect data on surveys taken on 'invalid' days
      *
@@ -115,37 +116,32 @@ class Participant {
 
         $all_surveys = $this->getAllSurveys($participantID);
         //$this->max_instance = max(array_keys($all_surveys));
-        $max_repeat_instance = max(array_column($all_surveys, 'redcap_repeat_instance'));
+        //$max_repeat_instance = max(array_column($all_surveys, 'redcap_repeat_instance'));
+
+        if (empty($all_surveys)) {
+            $max_repeat_instance = 0; // handle cases where there are no surveys
+        } else {
+            $max_repeat_instance = max(array_column($all_surveys, 'redcap_repeat_instance'));
+        }
+
         $this->max_instance = $max_repeat_instance;
 
-        //$module->emDebug($all_surveys, $this->max_instance, $max_repeat_instance, $min, $max); exit;
-        //$module->emDebug($this->valid_day_array, $this->start_date);
-
         $start_date = DateTime::createFromFormat('Y-m-d', $this->start_date);
-        $date = $start_date;
 
         $today = new DateTime();
-
-
 
         //offset the start date from the min
         //if start_date is 0, what date is $min?
 
         //$date->add(new DateInterval('P'.$min. 'D'));
         $date = $start_date->modify('+ '.$min.' days');
-        //echo $date->format('Y-m-d H:i:s');
-
-        //$module->emDebug($this->start_date, $start_date, $date);
 
         //if date is in the future then break out of loop
         if ($date > $today) {
             return $survey_status; //return empty array
         }
 
-        //$module->emDebug($all_surveys, $min, $max); exit;
         for ($i = $min; $i <= $max; $i++) {
-
-            //$module->emDebug("** date is ". $date->format('Y-m-d') . " DAY_NUMBER is ".$i);
 
             //search existing record for matching day number field
             $found_survey_key = array_search($i, array_column($all_surveys, $this->portalConfig->surveyDayNumberField));
@@ -163,7 +159,6 @@ class Participant {
 
             }
 
-
             if (!($found_survey_key === false)) { //because one of the found keys is 0 which reads as false.
                 $survey_status[$date_str]['completed'] = $all_surveys[$found_survey_key][$this->portalConfig->surveyInstrument . '_complete'];
                 $survey_status[$date_str]['survey_date'] = $all_surveys[$found_survey_key][$this->portalConfig->surveyDateField];
@@ -176,8 +171,6 @@ class Participant {
                 break;
             }
         }
-
-        //$module->emDebug($survey_status);  exit;
 
         return $survey_status;
 
@@ -451,6 +444,10 @@ class Participant {
         $q = REDCap::getData($params);
         $results = json_decode($q, true);
 
+        if (empty($results)) {
+            return 1;
+        }
+
         $max_id = max(array_column($results, 'redcap_repeat_instance'));
 
         return $max_id + 1;
@@ -471,7 +468,7 @@ class Participant {
         //can only get redcap_repeat_instance if all the fields are retrieved!!
         $get_fields = array(
             'redcap_repeat_instance',
-            $this->portalConfig->surveyDayNumber,
+            $this->portalConfig->surveyDayNumberField,
             $this->portalConfig->surveyDateNumber,
             $this->portalConfig->surveyInstrument . '_complete'
         );
@@ -488,6 +485,11 @@ class Participant {
         //$module->emDebug($params);
         $q = REDCap::getData($params);
         $results = json_decode($q, true);
+
+        if (empty($results)) {
+            //there is no existing responses
+            return 1;
+        }
 
         //just in case there are more than one (shouldn't happen), get the key by the largest timestamp
         $latest_key = array_keys($results, max($results))[0];

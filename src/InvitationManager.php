@@ -279,10 +279,9 @@ class InvitationManager {
             }
         }
 
-       //$module->emDebug($result, $not_empty, "Count of invitations to be sent:  ".count($result). " not empty". count($not_empty));
-       //exit;
 
-        //return $result;
+
+
         return $not_empty;
 
     }

@@ -22,14 +22,7 @@
     }
   ],
 
-  "permissions": [
-    "redcap_save_record",
-    "redcap_survey_complete",
-    "redcap_module_system_enable",
-    "redcap_module_link_check_display",
-    "redcap_module_save_configuration",
-    "redcap_data_entry_form_top"
-  ],
+  "framework-version": 12,
 
   "crons": [
     {

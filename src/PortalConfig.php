@@ -152,12 +152,13 @@ class PortalConfig {
 
         //setup the  parameters from the config
         foreach ($this->map as $k => $v) {
-            $this->{$v} =  $config[$k]['value'];
+            //$this->{$v} =  $config[$k]['value'];  //this no longer works in framework 12??
+            $this->{$v} =  $config[$k];
         }
 
         //setup the subsetting parameters from the config
         foreach ($this->sub_map as $k => $v) {
-            $this->{$v} =  $config[$k]['value'][$sub];
+            $this->{$v} =  $config[$k][$sub]; //there is no more array called 'value'
         }
 
         //Multiple response not implemented. Until then, just hardcode as 1.
